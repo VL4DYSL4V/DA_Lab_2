@@ -57,6 +57,28 @@ analyze <- function() {
     )
   )
   printDelimiterWithNewLines()
+  ageTrestbpsLM <- lm(age ~ trestbps)
+  print(
+    paste(
+      "Coefficient of determination for 'age' and 'trestbps': ",
+      summary(ageTrestbpsLM)$r.squared
+    )
+  )
+  ageCholLM <- lm(age ~ chol)
+  print(
+    paste(
+      "Coefficient of determination for 'age' and 'chol': ",
+      summary(ageCholLM)$r.squared
+    )
+  )
+  trestbpsCholLM <- lm(trestbps ~ chol)
+  print(
+    paste(
+      "Coefficient of determination for 'age' and 'chol': ",
+      summary(trestbpsCholLM)$r.squared
+    )
+  )
+  printDelimiterWithNewLines()
   ageMulCorTest <- cor.test(age.model$model$age, age.model$fitted.values)
   ageMulPValue <- ageMulCorTest$p.value
   print(
