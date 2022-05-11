@@ -74,7 +74,7 @@ analyze <- function() {
   trestbpsCholLM <- lm(trestbps ~ chol)
   print(
     paste(
-      "Coefficient of determination for 'age' and 'chol': ",
+      "Coefficient of determination for 'trestbps' and 'chol': ",
       summary(trestbpsCholLM)$r.squared
     )
   )
