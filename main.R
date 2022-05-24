@@ -1,5 +1,9 @@
 dataHospital <- read.csv('data_hospital.csv')
 
+age <- dataHospital$age
+trestbps <- dataHospital$trestbps
+chol <- dataHospital$chol
+
 printDelimiterWithNewLines <- function() {
   cat("\n\n=========================================================================\n\n")
 }
@@ -23,62 +27,56 @@ printPValue <- function(vector1, vector2, name1, name2) {
   )
 }
 
+printDeterminationCoefficient <- function(vector1, vector2, name1, name2) {
+  linModel <- lm(vector1 ~ vector2)
+  print(
+    paste(
+      "Coefficient of determination for '", name1, "' and '", name2, "': ",
+      summary(linModel)$r.squared
+    )
+  )
+}
+
+printMultipleCorrelationCoefficient <- function(
+  dependentVectorName,
+  independentVectorsNames
+) {
+  formula <- reformulate(independentVectorsNames, dependentVectorName)
+  model <- lm(formula)
+  vect <- model$model[, dependentVectorName]
+  print(
+    paste(
+      "Multiple correlation coefficient with '", dependentVectorName, "' as dependent variable: ",
+      cor(vect, model$fitted.values)
+    )
+  )
+}
+
 analyze <- function() {
-  printCorellationCoefficient(dataHospital$age, dataHospital$trestbps, "age", "trestbps")
-  printCorellationCoefficient(dataHospital$age, dataHospital$chol, "age", "chol")
-  printCorellationCoefficient(dataHospital$chol, dataHospital$trestbps, "chol", "trestbps")
+  printCorellationCoefficient(age, trestbps, "age", "trestbps")
+  printCorellationCoefficient(age, chol, "age", "chol")
+  printCorellationCoefficient(chol, trestbps, "chol", "trestbps")
   printDelimiterWithNewLines()
-  printPValue(dataHospital$age, dataHospital$trestbps, "age", "trestbps")
-  printPValue(dataHospital$age, dataHospital$chol, "age", "chol")
-  printPValue(dataHospital$chol, dataHospital$trestbps, "chol", "trestbps")
+  printPValue(age, trestbps, "age", "trestbps")
+  printPValue(age, chol, "age", "chol")
+  printPValue(chol, trestbps, "chol", "trestbps")
   printDelimiterWithNewLines()
-  age <- dataHospital$age
-  trestbps <- dataHospital$trestbps
-  chol <- dataHospital$chol
+
+  printDeterminationCoefficient(age, trestbps, 'age', 'trestbps')
+  printDeterminationCoefficient(age, chol, 'age', 'chol')
+  printDeterminationCoefficient(trestbps, chol, 'trestbps', 'chol')
+
+  printDelimiterWithNewLines()
+
+  printMultipleCorrelationCoefficient('age', c("trestbps", "chol"))
+  printMultipleCorrelationCoefficient('trestbps', c('age', 'chol'))
+  printMultipleCorrelationCoefficient('chol', c('trestbps', 'age'))
+
+  printDelimiterWithNewLines()
+
   age.model <- lm(age ~ trestbps + chol)
-  print(
-    paste(
-      "Multiple correlation coefficient with 'age' as dependent variable: ",
-      cor(age.model$model$age, age.model$fitted.values)
-    )
-  )
   trestbps.model <- lm(trestbps ~ age + chol)
-  print(
-    paste(
-      "Multiple correlation coefficient with 'trestbps' as dependent variable: ",
-      cor(trestbps.model$model$trestbps, trestbps.model$fitted.values)
-    )
-  )
   chol.model <- lm(chol ~ trestbps + age)
-  print(
-    paste(
-      "Multiple correlation coefficient with 'chol' as dependent variable: ",
-      cor(chol.model$model$chol, chol.model$fitted.values)
-    )
-  )
-  printDelimiterWithNewLines()
-  ageTrestbpsLM <- lm(age ~ trestbps)
-  print(
-    paste(
-      "Coefficient of determination for 'age' and 'trestbps': ",
-      summary(ageTrestbpsLM)$r.squared
-    )
-  )
-  ageCholLM <- lm(age ~ chol)
-  print(
-    paste(
-      "Coefficient of determination for 'age' and 'chol': ",
-      summary(ageCholLM)$r.squared
-    )
-  )
-  trestbpsCholLM <- lm(trestbps ~ chol)
-  print(
-    paste(
-      "Coefficient of determination for 'trestbps' and 'chol': ",
-      summary(trestbpsCholLM)$r.squared
-    )
-  )
-  printDelimiterWithNewLines()
   ageMulCorTest <- cor.test(age.model$model$age, age.model$fitted.values)
   ageMulPValue <- ageMulCorTest$p.value
   print(
@@ -101,6 +99,28 @@ analyze <- function() {
     paste(
       "P-value for 'chol' as dependent variable: ",
       cholMulPValue
+    )
+  )
+  printDelimiterWithNewLines()
+  ageTrestbpsCholLM <- lm(age ~ trestbps + chol)
+  print(
+    paste(
+      "Coefficient of determination for 'age' as dependent variable: ",
+      summary(ageTrestbpsCholLM)$r.squared
+    )
+  )
+  ageCholTrestbpsLM <- lm(chol ~ age + trestbps)
+  print(
+    paste(
+      "Coefficient of determination for 'chol' as dependent variable: ",
+      summary(ageCholTrestbpsLM)$r.squared
+    )
+  )
+  trestbpsCholAgeLM <- lm(trestbps ~ chol + age)
+  print(
+    paste(
+      "Coefficient of determination for 'trestbps' as dependent variable: ",
+      summary(trestbpsCholAgeLM)$r.squared
     )
   )
   printDelimiterWithNewLines()
