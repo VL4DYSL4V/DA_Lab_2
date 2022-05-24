@@ -52,6 +52,38 @@ printMultipleCorrelationCoefficient <- function(
   )
 }
 
+printMultipleDeterminationCoefficient <- function(
+  dependentVectorName,
+  independentVectorsNames
+) {
+  formula <- reformulate(independentVectorsNames, dependentVectorName)
+  model <- lm(formula)
+  print(
+    paste(
+      "Coefficient of determination for '", dependentVectorName, "' as dependent variable: ",
+      summary(model)$r.squared
+    )
+  )
+}
+
+printMultiplePValue <- function(
+  dependentVectorName,
+  independentVectorsNames
+) {
+  formula <- reformulate(independentVectorsNames, dependentVectorName)
+  model <- lm(formula)
+  vect <- model$model[, dependentVectorName]
+
+  mulCorTest <- cor.test(vect, model$fitted.values)
+  mulPValue <- mulCorTest$p.value
+  print(
+    paste(
+      "P-value for '", dependentVectorName, "' as dependent variable: ",
+      mulPValue
+    )
+  )
+}
+
 analyze <- function() {
   printCorellationCoefficient(age, trestbps, "age", "trestbps")
   printCorellationCoefficient(age, chol, "age", "chol")
@@ -74,55 +106,16 @@ analyze <- function() {
 
   printDelimiterWithNewLines()
 
-  age.model <- lm(age ~ trestbps + chol)
-  trestbps.model <- lm(trestbps ~ age + chol)
-  chol.model <- lm(chol ~ trestbps + age)
-  ageMulCorTest <- cor.test(age.model$model$age, age.model$fitted.values)
-  ageMulPValue <- ageMulCorTest$p.value
-  print(
-    paste(
-      "P-value for 'age' as dependent variable: ",
-      ageMulPValue
-    )
-  )
-  trestBpsMulCorTest <- cor.test(trestbps.model$model$trestbps, trestbps.model$fitted.values)
-  trestbpsMulPValue <- trestBpsMulCorTest$p.value
-  print(
-    paste(
-      "P-value for 'trestbps' as dependent variable: ",
-      trestbpsMulPValue
-    )
-  )
-  cholMulCorTest <- cor.test(chol.model$model$chol, chol.model$fitted.values)
-  cholMulPValue <- cholMulCorTest$p.value
-  print(
-    paste(
-      "P-value for 'chol' as dependent variable: ",
-      cholMulPValue
-    )
-  )
+  printMultiplePValue('age', c("trestbps", "chol"))
+  printMultiplePValue('trestbps', c('age', 'chol'))
+  printMultiplePValue('chol', c('trestbps', 'age'))
+
   printDelimiterWithNewLines()
-  ageTrestbpsCholLM <- lm(age ~ trestbps + chol)
-  print(
-    paste(
-      "Coefficient of determination for 'age' as dependent variable: ",
-      summary(ageTrestbpsCholLM)$r.squared
-    )
-  )
-  ageCholTrestbpsLM <- lm(chol ~ age + trestbps)
-  print(
-    paste(
-      "Coefficient of determination for 'chol' as dependent variable: ",
-      summary(ageCholTrestbpsLM)$r.squared
-    )
-  )
-  trestbpsCholAgeLM <- lm(trestbps ~ chol + age)
-  print(
-    paste(
-      "Coefficient of determination for 'trestbps' as dependent variable: ",
-      summary(trestbpsCholAgeLM)$r.squared
-    )
-  )
+
+  printMultipleDeterminationCoefficient('age', c('trestbps', 'chol'))
+  printMultipleDeterminationCoefficient('chol', c('age', 'trestbps'))
+  printMultipleDeterminationCoefficient('trestbps', c('chol', 'age'))
+
   printDelimiterWithNewLines()
 }
 
